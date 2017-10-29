@@ -33,7 +33,7 @@ namespace renderer {
 	std::string init_screen();
 	void user_input(bool [size][size],bool);				//boolean value checks if the game has just started
 	speed pause_screen(bool [size][size], int, command&);
-
+	speed lpause_screen(bool [size][size], int, command&);
 };
 
 

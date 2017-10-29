@@ -3,11 +3,17 @@
 using namespace std;
 //seed_init functions...
 
-void control::seed_init::setmatrix(bool matrix[size][size]){
+bool control::seed_init::setmatrix(bool matrix[size][size]){
 
 	string seedname=renderer::init_screen();
 	if (seedname=="Enter your own seed")
 		renderer::user_input(matrix, true);
+	else if (seedname == "LOGIC GATES"){
+			logic::intro_screen Is1;
+			string gatename=Is1.intro();
+			//(get logic gate seed)
+			return true;
+		}
 	else{
 		S1=file::getseed(seedname);
 		for (int i=0;i<size;i++){
@@ -16,8 +22,9 @@ void control::seed_init::setmatrix(bool matrix[size][size]){
 			}
 		}
 	}
-
+	return false;
 }
+
 
 
 control::controller::controller (){
@@ -249,6 +256,71 @@ file::seed file::getseed(string str){
 		}
 	fs.close();
 	return s1;
+}
+
+
+void file::storepattern(bool matrix[][size], std::string name, int nrows, int ncols){
+	ofstream fso("PATTERN.TXT",ios::app);
+	fso<<name<<"\n"<<nrows<<"\n"<<ncols<<"\n";
+	for (int i=0;i<nrows;i++){
+		for (int j=0;j<ncols;j++){
+			fso<<matrix[i][j];
+			if (j!=ncols-1)
+				fso<<" ";
+			else
+				fso<<"\n";
+		}
+	}
+}
+
+
+void file::getpattern(bool matrix[][size],std::string str, int nrows,int  ncols){
+
+	std::string name,rtxt,ctxt;
+	int r,c;
+	bool assign=false;
+	ifstream fs("PATTERN.TXT",ios::in);
+	if (!fs) {
+		cerr<<"CAN'T OPEN STREAM. TERMINATING";
+		exit(1);
+	}
+	while(!fs.eof()){
+		getline(fs,name,'\n');
+		getline(fs,rtxt,'\n');
+		getline(fs,ctxt,'\n');
+		r=stoi(rtxt);
+		c=stoi(ctxt);
+//		cout<<name<<"\n"<<r<<"\n"<<c<<"\n";
+		if (r==nrows && c == ncols && name==str){
+//			cout<<"in if"<<endl;
+			for (int i=0;i<r;i++){
+				for(int j=0;j<c;j++){
+					matrix[i][j]=fs.get()-'0';
+//					cout<<matrix[i][j]<<" ";
+					fs.ignore();
+				}
+//				cout<<"\n";
+			}
+			assign=true;
+		}
+		if (assign)
+			break;
+		else {
+//			cout<<"in else"<<endl;
+			for (int i=0;i<r;i++){
+				for(int j=0;j<c;j++){
+					fs.ignore();
+					fs.ignore();
+				}
+			}
+		}
+	}
+	if (!assign){
+			cerr<<"Didn't find pattern terminating";
+			exit(1);
+		}
+//	cout<<"ending for "<<str<<endl;
+	fs.close();
 }
 
 

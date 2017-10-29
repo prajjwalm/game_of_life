@@ -1,12 +1,15 @@
 /*
- * GOL1.cpp
+
+
+ GOL1.cpp
  *
  *  Created on: 30-Sep-2017
  *      Author: Prajjwal Mishra
  *
  *      requires MinGW 6.1.0 (64 bit) and SFML 2.4.2 (64 bit for MinGW 6.1.0)...
  *      also uses arialbd.ttf, a text document containing the seed information and several .png files...
- */
+
+
 
 #include <iostream>
 #include <stdlib.h>
@@ -17,16 +20,11 @@
 using namespace std;
 
 const int size=100;
-enum command { STOP, RESUME, MODIFY, QUIT};
-enum speed { vslow, slow, med, fast, vfast};
-
-struct seed{
-	bool matrix[size][size];
-	string name;
-};
-
 
 namespace renderer {
+
+	enum command { STOP, RESUME, MODIFY, QUIT};
+	enum speed { vslow, slow, med, fast, vfast};
 
 	const sf::Color color_live=sf::Color(0,255,0);
 	const sf::Color color_dead=sf::Color(0,0,0);
@@ -76,23 +74,34 @@ namespace backend {
 
 }
 
+namespace file {
+	struct seed{
+		bool matrix[size][size];
+		string name;
+	};
+
+	void storeseed(seed);
+	seed getseed(string str);
+
+}
+
 namespace control {
 
 	class seed_init {
-		seed S1;
+		file::seed S1;
 	public:
 		void setmatrix(bool [size][size]);
 	};
 
 
 	class controller  {
-		speed pace;
+		renderer::speed pace;
 		int tick;							//tick duration, in milliseconds, depends only on pace
 		backend::universe life;
 	public:
 		controller ();
 		void update(bool [size][size]);		// assignment of life::matrix during initialization or modification
-		void setpace(speed);				// sets speed and tick, may use enum speed as its argument also
+		void setpace(renderer::speed);				// sets speed and tick, may use enum speed as its argument also
 		bool rungame(bool [size][size],int&);			//returns whether paused
 														//takes the matrix and gen to pass the paused values
 														//of 'life' and life.gen into it
@@ -100,12 +109,7 @@ namespace control {
 }
 
 
-namespace file {
 
-	void storeseed(seed);
-	seed getseed(string str);
-
-}
 
 int main(){
 
@@ -115,8 +119,8 @@ int main(){
 	int gen=0;
 	bool matrix[size][size];
 	bool if_paused=false;
-	command pause_cmd;
-	speed s;
+	renderer::command pause_cmd;
+	renderer::speed s;
 
 	for (int i=0;i<size;i++){
 		for (int j=0;j<size;j++){
@@ -127,7 +131,6 @@ int main(){
 		S.setmatrix(matrix);
 		// at this stage, matrix is an initialized 2D array of 0s and 1s
 		// now we feed this array to our controller
-
 		C.update(matrix);
 //		to make the matrix a seed...
 //		seed s1;
@@ -139,33 +142,32 @@ int main(){
 //		}
 //
 //		file::storeseed(s1);
-
 		// at this stage C.life.matrix is well initialized array of dead and live cells
 		// now we open the pause screen...
 		do {
 			s=renderer::pause_screen(matrix,gen,pause_cmd);
-			C.setpace(s);
+			C.setpace(s);							//controller sets the game speed
 			// now we run the game
 			switch (pause_cmd) {
-			case RESUME:
+			case renderer::RESUME:							//controller runs the game
 				if_paused=C.rungame(matrix,gen);
 				break;
-			case STOP:
+			case renderer::STOP:								//game restarts with a new matrix
 				if_paused=false;
 				gen=0;
 				break;
-			case MODIFY:
+			case renderer::MODIFY:							//controller updates the matrix
 				renderer::user_input(matrix,false);
 				gen=0;
 				C.update(matrix);
 				if_paused=true;
 				break;
-			case QUIT:
+			case renderer::QUIT:
 				if_paused=false;
 				break;
 			}
 		} while(if_paused==true);
-	} while(pause_cmd==STOP);
+	} while(pause_cmd==renderer::STOP);
 	return 0;
 }
 
@@ -177,10 +179,10 @@ void control::seed_init::setmatrix(bool matrix[size][size]){
 	if (seedname=="Enter your own seed")
 		renderer::user_input(matrix, true);
 	else{
-		seed s=file::getseed(seedname);
+		S1=file::getseed(seedname);
 		for (int i=0;i<size;i++){
 			for(int j=0;j<size;j++){
-				matrix[i][j]=s.matrix[i][j];
+				matrix[i][j]=S1.matrix[i][j];
 			}
 		}
 	}
@@ -519,7 +521,7 @@ void renderer::user_input(bool matrix[size][size], bool start) {
 	}
 }
 
-speed renderer::pause_screen(bool matrix[size][size], int gen, command& cmd){
+renderer::speed renderer::pause_screen(bool matrix[size][size], int gen, command& cmd){
 
 	int i,j,sval=0;
 	const int n_speeds=5;
@@ -954,7 +956,7 @@ void backend::universe::next_gen(){
 
 control::controller::controller (){
 
-	pace=vslow;
+	pace=renderer::vslow;
 	tick=1;
 }
 
@@ -963,22 +965,22 @@ void control::controller::update(bool matrix [size][size]){
 	// from here game opens in paused state...
 }
 
-void control::controller::setpace(speed s){
+void control::controller::setpace(renderer::speed s){
 	pace=s;
 	switch(pace) {
-	case vslow:
+	case renderer::vslow:
 		tick=600/17;	//empirical
 		break;
-	case slow:
+	case renderer::slow:
 		tick=400/17;
 		break;
-	case med:
+	case renderer::med:
 		tick=250/17;
 		break;
-	case fast:
+	case renderer::fast:
 		tick=100/17;
 		break;
-	case vfast:
+	case renderer::vfast:
 		tick=1;			// MAX SPEED POSSIBLE
 		break;
 	}
@@ -1149,7 +1151,7 @@ void file::storeseed(seed S){
 	}
 }
 
-seed file::getseed(string str){
+file::seed file::getseed(string str){
 	//
 	// searches for the seed,
 	// returns it if it exists
@@ -1182,3 +1184,6 @@ seed file::getseed(string str){
 	fs.close();
 	return s1;
 }
+
+
+*/

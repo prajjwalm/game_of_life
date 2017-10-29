@@ -7,7 +7,7 @@ string renderer::init_screen(){
 
 	//sets up the initial screen of the game
 	int i, selected_option=-1;
-	string msg[N_options]={"Enter your own seed","Gosper's Glider Gun with eater","Spaceships","Oscillators"};
+	string msg[N_options]={"Enter your own seed","Gosper's Glider Gun with eater","Spaceships","Oscillators","LOGIC GATES"};
 
 	//sfml objects...
 	sf::RenderWindow rw(sf::VideoMode(width,height),"GAME OF LIFE");

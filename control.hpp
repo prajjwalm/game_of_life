@@ -10,6 +10,7 @@
 
 #include "backend.hpp"
 #include "renderer.hpp"
+#include "logic.hpp"
 #include <fstream>
 
 namespace file {
@@ -20,8 +21,9 @@ namespace file {
 	};
 
 	void storeseed(seed);
-	seed getseed(std::string str);
-
+	seed getseed(std::string);
+	void storepattern(bool [][size], std::string, int nrows, int ncols);
+	void getpattern(bool [][size], std::string, int nrows, int ncols);
 }
 
 namespace control {
@@ -29,7 +31,7 @@ namespace control {
 	class seed_init {
 		file::seed S1;
 	public:
-		void setmatrix(bool [size][size]);
+		bool setmatrix(bool [size][size]);
 	};
 
 
