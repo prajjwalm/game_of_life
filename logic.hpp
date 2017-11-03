@@ -13,6 +13,7 @@
 
 namespace logic{
 
+//DATA TO SET UP INTRODUCTORY SCREEN
 	using renderer::height;
 	using renderer::margin;
 	using renderer::side;
@@ -20,7 +21,6 @@ namespace logic{
 	using renderer::color_bkgd;
 	using renderer::color_dead;
 	using renderer::color_live;
-
 
 	const int gun_rows =11;
 	const int gun_cols =38;
@@ -40,6 +40,13 @@ namespace logic{
 		intro_screen();						//constructor only
 		std::string intro();						// display the introductory screen...
 	};
+
+// INPUT POSITIONS OF VARIOUS GATES
+	struct point {
+		int x;
+		int y;
+	};
+	const point AND1={54,20}, AND2 ={67,35},OR1={54,20}, OR2 ={67,35}, NOT1={32,20};
 }
 
 

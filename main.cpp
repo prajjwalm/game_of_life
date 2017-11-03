@@ -9,11 +9,13 @@ int main(){
 
 	int gen=0;
 	bool matrix[size][size];
+	bool matrix_cpy[size][size];
 	bool if_paused=false;
 	bool logic_selected;
+	gate G;
 	renderer::command pause_cmd;
 	renderer::speed s;
-
+	file::seed s1;
 
 	for (int i=0;i<size;i++){
 		for (int j=0;j<size;j++){
@@ -21,7 +23,7 @@ int main(){
 		}
 	}
 	do {
-		logic_selected=S.setmatrix(matrix);
+		logic_selected=S.setmatrix(matrix, G);
 
 			// making a pattern of the matrix...
 //			for (int i=0;i<logic::eat_rows;i++){
@@ -34,17 +36,6 @@ int main(){
 			// at this stage, matrix is an initialized 2D array of 0s and 1s
 			// now we feed this array to our controller
 			C.update(matrix);
-
-		//		to make the matrix a seed...
-		//		seed s1;
-		//		s1.name="Oscillators";
-		//		for (int i=0;i<size;i++){
-		//			for(int j=0;j<size;j++){
-		//				s1.matrix[i][j]=matrix[i][j];
-		//			}
-		//		}
-		//
-		//		file::storeseed(s1);
 
 			// at this stage C.life.matrix is well initialized array of dead and live cells
 			// now we open the pause screen...
@@ -64,6 +55,17 @@ int main(){
 					renderer::user_input(matrix,false);
 					gen=0;
 					C.update(matrix);
+					//		to make the matrix a seed...
+
+//								s1.name="OR";
+//								for (int i=0;i<size;i++){
+//									for(int j=0;j<size;j++){
+//										s1.matrix[i][j]=matrix[i][j];
+//									}
+//								}
+//
+//								file::storeseed(s1);
+
 					if_paused=true;
 					break;
 				case renderer::QUIT:
@@ -75,6 +77,47 @@ int main(){
 		else {
 			//launch logic gates code here...
 
+			bool A_activated=false,B_activated=false;													//here A_activated and B_activated represent if inputs were just switched on
+			bool start=true;
+
+			for (int i=0;i<size;i++){
+				for (int j=0;j<size;j++){
+					matrix_cpy[i][j]=matrix[i][j];
+				}
+			}
+			C.update(matrix);
+			do {
+				s=renderer::lpause_screen(matrix,gen,pause_cmd, G, A_activated, B_activated, start);
+					//matrix, gen, not_selected and start are inputs
+					//s, pause_cmd, A_, B_ are outputs
+				start = false;
+				C.setpace(s);
+				switch (pause_cmd) {
+				case renderer::RESUME:
+					if (G!=NOT)
+						if_paused=C.rungame(matrix, gen, G, A_activated, B_activated);
+					else
+						if_paused=C.rungame(matrix, gen, NOT, A_activated, false);
+					break;
+				case renderer::STOP:
+					if_paused=false;
+					gen=0;
+					break;
+				case renderer::QUIT:
+					if_paused=false;
+					break;
+				case renderer::L_RESET:
+					if_paused=true;
+					for (int i=0;i<size;i++){
+						for (int j=0;j<size;j++){
+							matrix[i][j]=matrix_cpy[i][j];
+						}
+					}
+					gen=0;
+					start=true;
+					C.update(matrix);
+				}
+			} while(if_paused==true);
 		}
 	} while(pause_cmd==renderer::STOP);
 	return 0;

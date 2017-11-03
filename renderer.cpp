@@ -571,3 +571,309 @@ renderer::speed renderer::pause_screen(bool matrix[size][size], int gen, command
 		exit(1);
 	}
 }
+
+renderer::speed renderer::lpause_screen(bool matrix[size][size], int gen, command& cmd, gate G, bool& A_activated, bool& B_activated, bool start){
+																						// change to (enum) gate g1, enum and other switch points in namespace logic
+
+	//remove modify button when all commands are done
+	int i,j,sval=0;
+	const int n_speeds=5;
+	static bool A;
+	static bool	B;
+	if (start){
+		A = false;
+		B = false;
+	}
+
+	A_activated = false;
+	B_activated = false;
+
+	string msg[n_speeds]= {"vslow", "slow", "med", "fast", "vfast"};
+
+
+	sf::RenderWindow rw(sf::VideoMode(width,height),"Game Paused");
+
+	sf::Font arial;
+	arial.loadFromFile("arialbd.ttf");
+
+
+	//cells...
+	sf::RectangleShape cell(sf::Vector2f(side,side));
+	cell.setOutlineColor(sf::Color(128,128,128));
+	cell.setOutlineThickness(1);
+
+	//speed radios and their texts...
+	sf::Texture radio0;
+	if (!radio0.loadFromFile("unselected_radio.png")){
+		cerr<<"Unable to load unselected radio. terminated\n";
+		exit(1);
+	}
+	radio0.setSmooth(true);
+
+	sf::Texture radio1;
+	if (!radio1.loadFromFile("selected_radio.png")){
+		cerr<<"Unable to load selected radio. terminated\n";
+		exit(1);
+	}
+	radio1.setSmooth(true);
+	sf::Text speed_txt[n_speeds], t, gno, input1, input2;
+
+	rw.clear(color_bkgd);
+
+	t.setFont(arial);
+	t.setFillColor(sf::Color(64,64,255));
+	t.setCharacterSize(24);
+	t.setPosition(margin, margin);
+	t.setString("Select the pace of the game: ");
+	rw.draw(t);
+
+	input1.setFont(arial);
+	input1.setFillColor(sf::Color(64,64,255));
+	input1.setCharacterSize(24);
+	input1.setPosition(margin*4, height - margin - 256);
+	input1.setString("input A");
+	rw.draw(input1);
+
+	if (G!=NOT){
+		input2.setFont(arial);
+		input2.setFillColor(sf::Color(64,64,255));
+		input2.setCharacterSize(24);
+		input2.setPosition(margin*4, height - margin - 206);
+		input2.setString("input B");
+		rw.draw(input2);
+	}
+	sf ::Sprite radio[n_speeds], Aradio, Bradio;
+	sf::FloatRect speedbox[n_speeds], Aradiobox, Bradiobox;
+
+	//draw the option buttons...
+	for (i=0; i<n_speeds; i++){
+		speed_txt[i].setFont(arial);
+		speed_txt[i].setFillColor(sf::Color(64,64,255));
+		speed_txt[i].setCharacterSize(24);
+		if (i)
+			radio[i].setTexture(radio0);
+		else
+			radio[i].setTexture(radio1);
+		speed_txt[i].setString(msg[i]);
+		radio[i].setPosition(margin*2, (4+i*2)*margin);
+		radio[i].setScale(0.3, 0.3);						// sets size of buttons very close to (but <) 10 pixels
+		speed_txt[i].setPosition(margin*4, (4+i*2)*margin-6);			// emperically set
+		speedbox[i]=radio[i].getGlobalBounds();
+		rw.draw(radio[i]);
+		rw.draw(speed_txt[i]);
+	}
+
+	if (!A)
+		Aradio.setTexture(radio0);
+	else
+		Aradio.setTexture(radio1);
+	Aradio.setPosition(margin*2,height-margin-250);
+	Aradio.setScale(0.3, 0.3);
+	Aradiobox=Aradio.getGlobalBounds();
+	rw.draw(Aradio);
+
+	if (G !=NOT){
+		if (!B)
+			Bradio.setTexture(radio0);
+		else
+			Bradio.setTexture(radio1);
+		Bradio.setPosition(margin*2,height-margin-200);
+		Bradio.setScale(0.3, 0.3);
+		Bradiobox=Bradio.getGlobalBounds();
+		rw.draw(Bradio);
+	}
+	//draw the matrix, aligned right... (MATRIX UNMODIFIABLE)
+
+	for (i=0;i<size;i++)
+		for (j=0;j<size;j++) {
+			if (matrix[i][j])
+				cell.setFillColor(color_live);
+			else
+				cell.setFillColor(color_dead);
+			cell.setPosition(i*side+(width-side*size-margin), j*side+(3*margin));
+			rw.draw(cell);
+		}
+
+	//write the gen no
+	gno.setFont(arial);
+	gno.setFillColor(color_live);
+	gno.setCharacterSize(24);
+	gno.setPosition(width-side*size+margin*3, margin);
+	gno.setString("Gen no.: "+to_string(gen));
+	rw.draw(gno);
+	//draw the reset button
+	sf::Texture reset0;
+	if (!reset0.loadFromFile("Reset_button.png")){
+			cerr<<"Unable to load reset button terminated\n";
+			exit(1);
+		}
+	reset0.setSmooth(true);
+	sf::Texture reset1;
+	if (!reset1.loadFromFile("Reset_pressed.png")){
+			cerr<<"Unable to load reset pressed terminated\n";
+			exit(1);
+		}
+	reset1.setSmooth(true);
+	sf::Sprite reset;
+	sf::FloatRect resetbox;
+
+	reset.setTexture(reset0);
+	reset.setScale(0.5,0.5);
+	reset.setPosition(margin, height-margin-100);			// emperically set
+	resetbox=reset.getGlobalBounds();
+	rw.draw(reset);
+
+
+	//draw the resume, stop buttons...
+	sf::Texture resume0;
+	if (!resume0.loadFromFile("Resume_button.png")){
+		cerr<<"Unable to load resume button terminated\n";
+		exit(1);
+	}
+	sf::Texture resume1;
+	if (!resume1.loadFromFile("Resume_pressed.png")){
+		cerr<<"Unable to load resume pressed terminated\n";
+		exit(1);
+	}
+	sf::Sprite resume;
+	sf::FloatRect resumebox;
+	resume.setTexture(resume0);
+
+	resume.setPosition(width-size*side-100,height/2-25);	//emperical
+	resume.setScale(0.6, 0.6);							// sets size of buttons very close to (but <) 20 pixels
+	resumebox=resume.getGlobalBounds();
+	rw.draw(resume);
+
+	sf::Texture stop0;
+	if (!stop0.loadFromFile("Stop_button.png")){
+		cerr<<"Unable to load stop button terminated\n";
+		exit(1);
+	}
+	sf::Texture stop1;
+	if (!stop1.loadFromFile("Stop_pressed.png")){
+		cerr<<"Unable to load stop pressed terminated\n";
+		exit(1);
+	}
+	sf::Sprite stop;
+	sf::FloatRect stopbox;
+	stop.setTexture(stop0);
+
+	stop.setPosition(width-size*side-100,height/2+25);	//emperical
+	stop.setScale(0.6, 0.6);							// sets size of buttons very close to (but <) 20 pixels
+	stopbox=stop.getGlobalBounds();
+	rw.draw(stop);
+
+// identify the point pressed
+	sf::Vector2f point;
+
+	rw.display();
+	while (rw.isOpen()){
+		sf::Event event;
+		while (rw.pollEvent(event)){
+			switch (event.type) {
+			case sf::Event::Closed:
+				rw.close();
+				cmd=QUIT;
+				break;
+			case sf::Event::MouseButtonPressed:
+				point.x=event.mouseButton.x;
+				point.y=event.mouseButton.y;
+				for (i=0;i<n_speeds;i++){
+					if (speedbox[i].contains(point)){
+						sval=i;
+						for (j =0;j <n_speeds;j++){
+							if (j!=i)
+								radio[j].setTexture(radio0);
+						}
+						radio[i].setTexture(radio1);
+
+					}
+				}
+				if (resetbox.contains(point)){
+					reset.setTexture(reset1);
+					reset.setPosition(margin+5, height-margin-95);
+				}
+				else if (resumebox.contains(point)){
+					resume.setTexture(resume1);
+				}
+				else if (stopbox.contains(point)){
+					stop.setTexture(stop1);
+				}
+				else if (Aradiobox.contains(point)){
+					if (!A){
+						Aradio.setTexture(radio1);
+						A = true;
+						A_activated = true;
+					}
+				}
+				else if (G!=NOT && Bradiobox.contains(point)){
+					if(!B){
+						Bradio.setTexture(radio1);
+						B=true;
+						B_activated = true;
+					}
+				}
+				break;
+			case sf::Event::MouseButtonReleased:
+				point.x=event.mouseButton.x;
+				point.y=event.mouseButton.y;
+				reset.setTexture(reset0);
+				resume.setTexture(resume0);
+				stop.setTexture(stop0);
+				reset.setPosition(margin, height-margin-100);
+				if (resetbox.contains(point)){
+					rw.close();
+					cmd=L_RESET;
+				}
+				else if (resumebox.contains(point)){
+					rw.close();
+					cmd=RESUME;
+				}
+				else if (stopbox.contains(point)){
+					rw.close();
+					cmd=STOP;
+				}
+				break;
+			}
+			if (event.type==sf::Event::MouseButtonPressed || event.type==sf::Event::MouseButtonReleased) {
+				//draw all
+				rw.clear(color_bkgd);
+				rw.draw(t);
+				rw.draw(input1);
+				if (G!=NOT){
+					rw.draw(input2);
+				}
+				rw.draw(Aradio);
+				rw.draw(Bradio);
+				for (i=0;i<n_speeds;i++) {
+					rw.draw(radio[i]);
+					rw.draw(speed_txt[i]);
+				}
+				for (i=0;i<size;i++)
+					for (j=0;j<size;j++) {
+						if (matrix[i][j])
+							cell.setFillColor(color_live);
+						else
+							cell.setFillColor(color_dead);
+						cell.setPosition(i*side+(width-side*size-margin), j*side+(3*margin));
+						rw.draw(cell);
+					}
+				rw.draw(gno);
+				rw.draw(resume);
+				rw.draw(reset);
+				rw.draw(stop);
+				rw.display();
+			}
+		}
+	}
+	switch(sval){
+	case 0: return vslow;
+	case 1: return slow;
+	case 2: return med;
+	case 3: return fast;
+	case 4: return vfast;
+	default:
+		cerr<<"invalid speed selected, terminating! ";
+		exit(1);
+	}
+}

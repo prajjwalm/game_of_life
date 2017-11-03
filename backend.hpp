@@ -35,6 +35,7 @@ namespace backend {
 		universe();
 		int getgen() {return gen;}
 		state getstatexy(int x, int y);
+		void setstatexy(int x, int y, state S);
 		void initialize(bool [size][size]);
 		void next_gen();					//based on n and the previous states of the cells, generates the
 											//current state of all the cells of the matrix, increments gen

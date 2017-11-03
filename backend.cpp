@@ -192,3 +192,7 @@ void backend::universe::next_gen(){
 	}
 	gen++;
 }
+
+void backend::universe::setstatexy(int x, int y, state S){
+	matrix[x][y].init_state(S);
+}

@@ -9,5 +9,6 @@
 #define SRC_GLOBALVAR_HPP_
 
 const int size = 100;
+enum gate {NO_GATE,AND,OR,NOT};
 
 #endif /* SRC_GLOBALVAR_HPP_ */

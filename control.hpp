@@ -22,6 +22,7 @@ namespace file {
 
 	void storeseed(seed);
 	seed getseed(std::string);
+
 	void storepattern(bool [][size], std::string, int nrows, int ncols);
 	void getpattern(bool [][size], std::string, int nrows, int ncols);
 }
@@ -31,7 +32,7 @@ namespace control {
 	class seed_init {
 		file::seed S1;
 	public:
-		bool setmatrix(bool [size][size]);
+		bool setmatrix(bool [size][size], gate&);
 	};
 
 
@@ -46,6 +47,7 @@ namespace control {
 		bool rungame(bool [size][size],int&);			//returns whether paused
 														//takes the matrix and gen to pass the paused values
 														//of 'life' and life.gen into it
+		bool rungame(bool [size][size],int&, gate, bool, bool);
 	};
 }
 

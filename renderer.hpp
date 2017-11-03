@@ -17,14 +17,14 @@
 
 namespace renderer {
 
-	enum command { STOP, RESUME, MODIFY, QUIT};
+	enum command { STOP, RESUME, MODIFY, QUIT, L_RESET};
 	enum speed { vslow, slow, med, fast, vfast};
 
 	const sf::Color color_live=sf::Color(0,255,0);
 	const sf::Color color_dead=sf::Color(0,0,0);
 	const sf::Color color_bkgd=sf::Color(16,16,16);
 
-	const int N_options=5;
+	const int N_options=6;
 	const int side=8;
 	const int height=900;
 	const int width=1200;
@@ -33,7 +33,7 @@ namespace renderer {
 	std::string init_screen();
 	void user_input(bool [size][size],bool);				//boolean value checks if the game has just started
 	speed pause_screen(bool [size][size], int, command&);
-	speed lpause_screen(bool [size][size], int, command&);
+	speed lpause_screen(bool [size][size], int, command&, gate, bool&, bool&, bool);
 };
 
 

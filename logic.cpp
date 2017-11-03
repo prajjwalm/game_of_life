@@ -7,6 +7,8 @@
 
 #include "globalvar.hpp"
 #include "logic.hpp"
+#include "control.hpp"
+
 
 using namespace std;
 
@@ -83,8 +85,8 @@ string logic::intro_screen::intro(){
 	l[7] .setString("to open them  would require  destroying the eater");
 	l[8] .setString("by activating the  highlighted cell, this act cannot");
 	l[9] .setString("be undone and so the 0/0 state must be reopened");
-	l[10].setString("(please  ensure that there is no glider that is  just");
-	l[11].setString("about to collide with the eater while deativating it)");
+	l[10].setString("(The switches are to be activated only when there");
+	l[11].setString("is no risk of a glider colliding with the debris)");
 	l[12].setString("Choose your gate...");
 
 	for (int i=0;i<ntxt;i++){
