@@ -9,6 +9,10 @@ backend::cell::cell(){
 	n=0;
 }
 
+backend::cell::cell(state _p, int _n){
+	n=_n;
+	prev=_p;
+}
 
 backend::state backend::cell::getstate(){
 		return curr;
@@ -51,6 +55,10 @@ backend::state backend::cell::setstate(){
 	return curr;
 }
 
+int backend::cell::getn(){
+	return n;
+}
+
 // universe functions...
 
 backend::universe::universe(){
@@ -67,6 +75,10 @@ void backend::universe::initialize(bool X[size][size]){
 				matrix[j][i].init_state(dead);
 		}
 	}
+}
+
+int backend::universe::getnxy(int x, int y){
+	return matrix[x][y].getn();
 }
 
 backend::state backend::universe::getstatexy(int x, int y){

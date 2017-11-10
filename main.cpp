@@ -1,21 +1,28 @@
 #include "control.hpp"
+#include "test.hpp"
 
 using namespace std;
 
 int main(){
 
-	control::seed_init S;
-	control::controller C;
-
-	int gen=0;
-	bool matrix[size][size];
-	bool matrix_cpy[size][size];
-	bool if_paused=false;
-	bool logic_selected;
-	gate G;
 	renderer::command pause_cmd;
 	renderer::speed s;
 	file::seed s1;
+	control::seed_init S;
+	control::controller C;
+	test::cell_test ct1;
+	test::univ_test ut1;
+
+	ct1.test_setstate();
+	ut1.test_next_gen();
+	ut1.test_update_n();
+
+	int gen = 0;
+	bool matrix[size][size];
+	bool matrix_cpy[size][size];
+	bool if_paused = false;
+	bool logic_selected;
+	gate G;
 
 	for (int i=0;i<size;i++){
 		for (int j=0;j<size;j++){
@@ -41,6 +48,18 @@ int main(){
 			// now we open the pause screen...
 			do {
 				s=renderer::pause_screen(matrix,gen,pause_cmd);
+
+				//		to make the matrix a seed...
+
+//				s1.name="lwss";
+//				for (int i=0;i<size;i++){
+//					for(int j=0;j<size;j++){
+//						s1.matrix[i][j]=matrix[i][j];
+//					}
+//				}
+//
+//				file::StoreForTest(s1,'\t',"TESTSEED.TXT");
+
 				C.setpace(s);							//controller sets the game speed
 				// now we run the game
 				switch (pause_cmd) {
@@ -64,7 +83,7 @@ int main(){
 //									}
 //								}
 //
-//								file::storeseed(s1);
+//								file::storeseed(s1,' ',"SEEDS.TXT");
 
 					if_paused=true;
 					break;
@@ -120,5 +139,14 @@ int main(){
 			} while(if_paused==true);
 		}
 	} while(pause_cmd==renderer::STOP);
+
+//	int m[size][size];
+//	file::GetN(m,"glider");
+//	for (int i=0;i<size;i++){
+//		for(int j=0;j<size;j++){
+//			cout<<m[i][j]<<" ";
+//		}
+//		cout<<"\n";
+//	}
 	return 0;
 }

@@ -12,7 +12,7 @@ bool control::seed_init::setmatrix(bool matrix[size][size], gate& G){
 	else if (seedname == "LOGIC GATES"){
 		logic::intro_screen Is1;
 		string gatename=Is1.intro();
-		S1=file::getseed(gatename);
+		S1=file::getseed(gatename,"SEEDS.TXT");
 
 		if 		(gatename=="NOT")
 			G=NOT;
@@ -29,7 +29,7 @@ bool control::seed_init::setmatrix(bool matrix[size][size], gate& G){
 		return true;
 	}
 	else{
-		S1=file::getseed(seedname);
+		S1=file::getseed(seedname,"SEEDS.TXT");
 		for (int i=0;i<size;i++){
 			for(int j=0;j<size;j++){
 				matrix[i][j]=S1.matrix[i][j];
@@ -404,21 +404,21 @@ bool control::controller::rungame (bool matrix[size][size], int &final_gen, gate
 }
 
 // file functions...
-void file::storeseed(seed S){
-	ofstream fso("SEEDS.TXT",ios::app);
+void file::storeseed(seed S, char delim, string filename){
+	ofstream fso(filename,ios::app);
 	fso<<S.name<<"\n";
 	for (int i=0;i<size;i++){
 		for (int j=0;j<size;j++){
 			fso<<S.matrix[i][j];
 			if (j!=size-1)
-				fso<<" ";
+				fso<<delim;
 			else
 				fso<<"\n";
 		}
 	}
 }
 
-file::seed file::getseed(string str){
+file::seed file::getseed(string str, string filename){
 	//
 	// searches for the seed,
 	// returns it if it exists
@@ -426,9 +426,9 @@ file::seed file::getseed(string str){
 	//
 	seed s1;
 	bool assign=false;
-	ifstream fs("SEEDS.TXT",ios::in);
+	ifstream fs(filename,ios::in);
 	if (!fs) {
-		cerr<<"CAN'T OPEN STREAM. TERMINATING";
+		cerr<<"CAN'T OPEN "<<filename<<" STREAM. TERMINATING";
 		exit(1);
 	}
 	while(!fs.eof()){
@@ -516,3 +516,45 @@ void file::getpattern(bool matrix[][size],std::string str, int nrows,int  ncols)
 }
 
 
+void file::GetN(int matrix[size][size], std::string str){
+	std::string name;
+	bool assign=false;
+	ifstream fs("NVALUES.TXT",ios::in);
+	if (!fs) {
+		cerr<<"CAN'T OPEN NVALUES STREAM. TERMINATING";
+		exit(1);
+	}
+	while(!fs.eof()){
+		getline(fs,name,'\n');
+
+		if (name==str){
+//			cout<<"in if"<<endl;
+			for (int i=0;i<size;i++){
+				for(int j=0;j<size;j++){
+					matrix[i][j]=fs.get()-'0';
+//					cout<<matrix[i][j]<<" ";
+					fs.ignore();
+				}
+//				cout<<"\n";
+			}
+			assign=true;
+		}
+		if (assign)
+			break;
+		else {
+//			cout<<"in else"<<endl;
+			for (int i=0;i<size;i++){
+				for(int j=0;j<size;j++){
+					fs.ignore();
+					fs.ignore();
+				}
+			}
+		}
+	}
+	if (!assign){
+		cerr<<"Didn't find pattern terminating";
+		exit(1);
+	}
+	//	cout<<"ending for "<<str<<endl;
+	fs.close();
+}

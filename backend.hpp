@@ -19,6 +19,8 @@ namespace backend {
 		int n;						// no of live neighbours
 	public:
 		cell();
+		cell(state, int);			//developed exclusively for testing
+		int getn();
 		state getstate();			// gives current state, meant for universe::display
 		void set_prev();			// assigns curr to prev, meant for universe::next_gen
 		int set_n(int);				// assigning of n
@@ -29,12 +31,13 @@ namespace backend {
 
 	class universe {
 		int gen;						//generation  number, increments at call of next_gen
-		void update_n();				// sets n for each cell, based on current states, for next_gen
 		cell matrix[size][size];
 	public:
 		universe();
 		int getgen() {return gen;}
+		void update_n();				// sets n for each cell, based on current states, for next_gen
 		state getstatexy(int x, int y);
+		int getnxy (int x, int y );
 		void setstatexy(int x, int y, state S);
 		void initialize(bool [size][size]);
 		void next_gen();					//based on n and the previous states of the cells, generates the

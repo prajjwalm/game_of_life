@@ -20,11 +20,13 @@ namespace file {
 		std::string name;
 	};
 
-	void storeseed(seed);
-	seed getseed(std::string);
+	void storeseed(seed, char delim, std::string fname);
+	seed getseed(std::string, std::string fname);
 
 	void storepattern(bool [][size], std::string, int nrows, int ncols);
 	void getpattern(bool [][size], std::string, int nrows, int ncols);
+
+	void GetN(int [][size], std::string);
 }
 
 namespace control {
